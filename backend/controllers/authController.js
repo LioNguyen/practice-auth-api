@@ -7,17 +7,14 @@ export const authController = {
   // REGISTER
   registerUser: async (req, res) => {
     try {
-      const username = req.body.username;
-      const password = req.body.password;
-      const email = req.body.email;
+      const { password, ...userDataWithoutPassword } = req.body;
 
       const salt = await bcrypt.genSalt(10);
       const hashed = await bcrypt.hash(password, salt);
 
       //Create new user
       const newUser = new User({
-        username,
-        email,
+        ...userDataWithoutPassword,
         password: hashed,
       });
 

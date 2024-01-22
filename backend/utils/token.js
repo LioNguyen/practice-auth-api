@@ -8,7 +8,7 @@ export const generateAccessToken = (user) => {
     },
     process.env.JWT_ACCESS_KEY,
     {
-      expiresIn: "30s",
+      expiresIn: "30d",
     }
   );
 };
