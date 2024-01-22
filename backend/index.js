@@ -5,6 +5,7 @@ import express from "express";
 
 import { connectDB } from "./utils/connectDB.js";
 import authRouter from "./routes/auth.js";
+import userRouter from "./routes/user.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use(cors());
 
 // Routes
 app.use("/v1/auth", authRouter);
+app.use("/v1/user", userRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
