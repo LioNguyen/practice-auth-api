@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 
 import User from "../models/User.js";
+import { generateAccessToken } from "../utils/token.js";
 
 export const authController = {
   // REGISTER
@@ -32,21 +33,28 @@ export const authController = {
   loginUser: async (req, res) => {
     try {
       const username = req.body.username;
-      const password = req.body.password;
 
       const user = await User.findOne({ username });
+      const { password, ...userWithoutPassword } = user._doc;
 
       if (!user) {
         return res.status(404).json("Incorrect username or password");
       }
 
-      const validPassword = await bcrypt.compare(password, user.password);
+      const validPassword = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
       if (!validPassword) {
         return res.status(404).json("Incorrect username or password");
       }
 
-      return res.status(200).json(user);
+      const accessToken = generateAccessToken(user);
+
+      return res.status(200).json({ ...userWithoutPassword, accessToken });
     } catch (error) {
+      console.log("🚀 @log ~ loginUser: ~ error:", error);
+
       return res.status(500).json(error);
     }
   },
