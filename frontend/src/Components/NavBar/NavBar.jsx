@@ -1,10 +1,22 @@
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 
 import "./navbar.css";
+import { logout } from "../../redux/apiRequest";
+import { createAxios } from "../../createInstance";
+import { logoutSuccess } from "../../redux/authSlice";
 
 const NavBar = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const user = useSelector((state) => state.auth.login.currentUser);
+
+  let axiosJWT = createAxios(user, dispatch, logoutSuccess);
+
+  const handleLogout = () => {
+    logout(dispatch, navigate, user?._id, user?.accessToken, axiosJWT);
+  };
 
   return (
     <nav className="navbar-container">
@@ -17,7 +29,7 @@ const NavBar = () => {
           <p className="navbar-user">
             Hi, <span> {user?.username} </span>{" "}
           </p>
-          <Link to="/logout" className="navbar-logout">
+          <Link to="/logout" className="navbar-logout" onClick={handleLogout}>
             {" "}
             Log out
           </Link>
