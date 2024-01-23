@@ -20,7 +20,7 @@ export const verifyToken = (req, res, next) => {
 
 export const verifyTokenAndUserAuthorization = (req, res, next) => {
   verifyToken(req, res, () => {
-    if (req.user.id === req.params.id || req.user.admin) {
+    if (req.user.id === req.params.id || req.user.isAdmin) {
       next();
     } else {
       return res.status(403).json("You are not allowed to do that");
