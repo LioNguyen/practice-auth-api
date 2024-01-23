@@ -7,6 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { deleteUser, getAllUsers } from "../../redux/apiRequest";
 import "./home.css";
 import { loginSuccess } from "../../redux/authSlice";
+import { createAxios } from "../../createInstance";
 
 const HomePage = () => {
   const dispatch = useDispatch();
@@ -16,39 +17,39 @@ const HomePage = () => {
   const userData = useSelector((state) => state.users.users?.allUsers);
   const msg = useSelector((state) => state.users?.msg);
 
-  let axiosJWT = axios.create();
+  let axiosJWT = createAxios(user, dispatch, loginSuccess);
 
-  const refreshToken = async () => {
-    try {
-      const res = await axios.post("/v1/auth/refresh", {
-        withCredential: true,
-      });
-      return res.data;
-    } catch (error) {
-      console.log("🚀 @log ~ refreshToken ~ error:", error);
-    }
-  };
+  // const refreshToken = async () => {
+  //   try {
+  //     const res = await axios.post("/v1/auth/refresh", {
+  //       withCredential: true,
+  //     });
+  //     return res.data;
+  //   } catch (error) {
+  //     console.log("🚀 @log ~ refreshToken ~ error:", error);
+  //   }
+  // };
 
-  axiosJWT.interceptors.request.use(
-    async (config) => {
-      let date = new Date();
-      const decodedToken = jwtDecode(user?.accessToken);
-      if (decodedToken.exp < date.getTime() / 1000) {
-        const data = await refreshToken();
-        const refreshUser = {
-          ...user,
-          accessToken: data.accessToken,
-        };
-        dispatch(loginSuccess(refreshUser));
-        config.headers["token"] = "Bearer " + data.accessToken;
-      }
+  // axiosJWT.interceptors.request.use(
+  //   async (config) => {
+  //     let date = new Date();
+  //     const decodedToken = jwtDecode(user?.accessToken);
+  //     if (decodedToken.exp < date.getTime() / 1000) {
+  //       const data = await refreshToken();
+  //       const refreshUser = {
+  //         ...user,
+  //         accessToken: data.accessToken,
+  //       };
+  //       dispatch(loginSuccess(refreshUser));
+  //       config.headers["token"] = "Bearer " + data.accessToken;
+  //     }
 
-      return config;
-    },
-    (err) => {
-      return Promise.reject(err);
-    }
-  );
+  //     return config;
+  //   },
+  //   (err) => {
+  //     return Promise.reject(err);
+  //   }
+  // );
 
   useEffect(() => {
     if (!user) {
