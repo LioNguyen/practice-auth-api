@@ -10,7 +10,12 @@ export const authController = {
   // REGISTER
   registerUser: async (req, res) => {
     try {
-      const { password, ...userDataWithoutPassword } = req.body;
+      const { username, password, ...userDataWithoutPassword } = req.body;
+
+      const foundUser = await User.findOne({ username });
+      if (foundUser) {
+        return res.status(409).json("Invalid username or email");
+      }
 
       const salt = await bcrypt.genSalt(10);
       const hashed = await bcrypt.hash(password, salt);
@@ -18,11 +23,13 @@ export const authController = {
       //Create new user
       const newUser = new User({
         ...userDataWithoutPassword,
+        username,
         password: hashed,
       });
 
       //Save user to DB
       const user = await newUser.save();
+
       return res.status(201).json(user);
     } catch (error) {
       return res.status(500).json(error);
@@ -35,12 +42,12 @@ export const authController = {
       const username = req.body.username;
 
       const user = await User.findOne({ username });
-      const { password, ...userWithoutPassword } = user._doc;
 
       if (!user) {
         return res.status(404).json("Incorrect username or password");
       }
 
+      const { password, ...userWithoutPassword } = user._doc;
       const validPassword = await bcrypt.compare(
         req.body.password,
         user.password
